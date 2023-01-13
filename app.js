@@ -15,6 +15,12 @@ const users = [
     email: "Connell29@gmail.com",
     password: "password",
   },
+  {
+    id: 3,
+    name: "new user 1",
+    email: "Cod234@gmail.com",
+    password: "paswer",
+  },
 ];
 
 const posts = [
@@ -30,6 +36,18 @@ const posts = [
     content: "Request/Response와 Stateless!!",
     userId: 1,
   },
+  {
+    id: 3,
+    title: "API의 특성",
+    ImageUrl: "http://danwd.com",
+    userId: 2,
+  },
+  {
+    id: 4,
+    title: "Node.js의 특성",
+    content: "ss!!",
+    userId: 3,
+  },
 ];
 
 const httpRequestListener = function (request, response) {
@@ -38,6 +56,31 @@ const httpRequestListener = function (request, response) {
     if (url === "/ping") {
       response.writeHead(200, { "Content-type": "application/json" });
       response.end(JSON.stringify({ message: "pong" }));
+    } else if (url === "/users/usersPosts") {
+      let body = "";
+      request.on("data", (data) => {
+        body += data;
+      });
+
+      request.on("end", () => {
+        const usersPosts = [];
+        for (i = 0; i < users.length; i++) {
+          for (j = 0; j < posts.length; j++) {
+            if (users[i].id === posts[j].userId) {
+              usersPosts.push({
+                userID: users[i].id,
+                userName: users[i].name,
+                postingId: posts[j].id,
+                postingTitle: posts[j].title,
+                postingImageUrl: posts[j].ImageUrl,
+                postingContent: posts[j].content,
+              });
+            }
+          }
+        }
+        response.writeHead(200, { "Content-type": "application/json" });
+        response.end(JSON.stringify({ usersPosts: usersPosts }));
+      });
     }
   } else if (method === "POST") {
     if (url === "/users/signup") {
@@ -50,7 +93,7 @@ const httpRequestListener = function (request, response) {
         const user = JSON.parse(body);
 
         users.push({
-          id: user.id,
+          id: number(user.id),
           name: user.name,
           email: user.email,
           password: user.password,
@@ -68,10 +111,10 @@ const httpRequestListener = function (request, response) {
         const post = JSON.parse(body);
 
         posts.push({
-          id: post.id,
+          id: parseInt(post.id),
           title: post.title,
           content: post.content,
-          userId: post.userId,
+          userId: parseInt(post.userId),
         });
         response.end(JSON.stringify({ message: "postCreated" }));
       });
