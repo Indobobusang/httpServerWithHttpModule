@@ -93,7 +93,7 @@ const httpRequestListener = function (request, response) {
         const user = JSON.parse(body);
 
         users.push({
-          id: number(user.id),
+          id: Number(user.id),
           name: user.name,
           email: user.email,
           password: user.password,
@@ -117,6 +117,27 @@ const httpRequestListener = function (request, response) {
           userId: parseInt(post.userId),
         });
         response.end(JSON.stringify({ message: "postCreated" }));
+      });
+    }
+  } else if (method === "PATCH") {
+    if (url === "/users/postsPatch") {
+      console.log("postsPatch");
+
+      let body = "";
+      request.on("data", (data) => {
+        body += data;
+      });
+
+      request.on("end", () => {
+        const patch = JSON.parse(body);
+        patch.id = parseInt(patch.id);
+        for (i = 0; i < posts.length; i++) {
+          if (posts[i].id === patch.id) {
+            posts[i].content = patch.content;
+          }
+        }
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ posts: posts }));
       });
     }
   }
